@@ -1,6 +1,6 @@
-# sanin2025
+# sanin-senkyoku-analyse
 
-選挙ドットコムの情報をもとに、参議院選挙2025の選挙区データをスクレイピング・集計するTypeScriptプロジェクトです。
+選挙ドットコムの情報をもとに、参議院選挙2022/2025の選挙区データをスクレイピング・集計するTypeScriptプロジェクトです。
 
 ## 概要
 
@@ -17,6 +17,8 @@
 ├── find_A_B_multi_seats.ts   # 複数人区でA/Bグループの政党を抽出
 ├── count_party_candidates.ts # 各政党の候補者数を集計
 ├── results/                  # スクレイピング結果(JSON)
+|      └── 2022/
+|      └── 2025/
 ├── package.json
 ├── tsconfig.json
 └── ...
@@ -45,11 +47,9 @@ npx ts-node scrape.ts <URL>
 ### 2. 全選挙区のデータを一括取得
 
 ```sh
-npx ts-node batch_scrape.ts
+batch.sh
 ```
-- `results/` ディレクトリに `1.json` ～ `47.json` が保存されます。
-- デフォルトURLは `https://sangiin.go2senkyo.com/2025/prefecture/` です。
-- 環境変数 `SENKYOKU_URL` でベースURLを変更可能です。
+- `results/` 以下、`2022`、`2025`ディレクトリに `1.json` ～ `47.json` が保存されます。
 
 ### 3. 各種集計・分析
 
@@ -78,10 +78,10 @@ npx ts-node find_A_B_multi_seats.ts
   "votedRate": "53.98",
   "candidates": [
     {
-      "name": "田中 よしひと",
-      "age": "53",
-      "position": "会社役員53歳｜会社役員",
-      "party": "参政党"
+      "name": "野村パターソン和孝",
+      "age": "40",
+      "position": "",
+      "party": "れいわ新選組"
     },
     ...
   ]
