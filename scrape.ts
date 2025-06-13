@@ -69,4 +69,72 @@ async function scrape(url: string) {
   }
 }
 
-scrape(url);
+// 2022年ページ用のscrape関数
+async function scrape2022(url: string) {
+  try {
+    const { data } = await axios.get(url);
+    const $ = cheerio.load(data);
+
+    // 選挙区名（h1や大きな見出しから取得）
+    let name = $('h1').first().text().trim();
+    if (!name) {
+      name = $('title').text().replace(/\s*\|.*/, '').trim();
+    }
+    if (!name.endsWith('選挙区')) name += '選挙区';
+
+    // 議席数・候補者数・投票率
+    let numOfSeats = '';
+    let numOfCandidates = '';
+    let votedRate = '';
+    const infoText = $('body').text();
+    const seatsMatch = infoText.match(/議席数\s*[:：]\s*(\d+)/);
+    if (seatsMatch) numOfSeats = seatsMatch[1];
+    const candMatch = infoText.match(/候補者数\s*[:：]\s*(\d+)/);
+    if (candMatch) numOfCandidates = candMatch[1];
+    const voteMatch = infoText.match(/投票率\s*[:：]\s*([\d.]+)/);
+    if (voteMatch) votedRate = voteMatch[1];
+
+    // 候補者情報
+    const candidates: any[] = [];
+    $('.p_senkyoku_graph_block').each((_, el) => {
+      const $el = $(el);
+      // 名前
+      const name = $el.find('.p_senkyoku_graph_block_profile_ttl').text().replace(/\s+/g, ' ').trim();
+      // 年齢
+      let age = '';
+      let party = '';
+
+      const ageText = $($el.find('.p_senkyoku_graph_block_profile_data_para')[0]).text();
+
+      const ageMatch = ageText.match(/(\d+)歳/);
+      if (ageMatch) age = ageMatch[1];
+      // 政党名
+      const partyMatch = ageText.match(/｜(.+)/);
+      if (partyMatch) party = partyMatch[1].trim();
+
+      const position = $( $el.filter('.p_senkyoku_graph_block_profile_data_para')[1] ).text().replace(/\s+/g, ' ').trim();
+      // 肩書き
+      if (name) {
+        candidates.push({ name, age, position, party });
+      }
+    });
+
+    const result = {
+      name,
+      numOfSeats,
+      numOfCandidates,
+      votedRate,
+      candidates,
+    };
+    console.log(JSON.stringify(result, null, 2));
+  } catch (err) {
+    console.error('Error:', err);
+    process.exit(1);
+  }
+}
+
+if (url.includes('2022')) {
+  scrape2022(url);
+} else {
+  scrape(url);
+}
